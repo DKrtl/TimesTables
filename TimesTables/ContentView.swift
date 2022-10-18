@@ -14,40 +14,128 @@ struct ContentView: View {
     @State private var timesTable = 1
     @State private var questionAmount = 5
     
+    @State private var firstNum = 1
+    @State private var secondNum = 1
+    @State private var answer: Int? = nil
+    
+    @State private var pointsCounter = 0
+    
+    @State private var showingResult = false
+    @State private var resultTitle = ""
+    
+    @FocusState private var answerIsFocused: Bool
+    
     var body: some View {
         VStack {
+            Spacer()
+            
             Text("Times Tables")
                 .font(.largeTitle.bold())
             
-            if active {
-                Text("hjkl")
-            } else {
-                Form {
-                    Section("Highest Multiple") {
-                        Stepper("Up to \(timesTable)", value: $timesTable, in: 1...12)
-                    }
-                    
-                    Section("Total Questions") {
-                        Picker("Questions", selection: $questionAmount) {
-                            ForEach(questionAmounts, id: \.self) {
-                                Text("\($0)")
+            Section {
+                if active {
+                    VStack {
+                        Form {
+                            Section {
+                                HStack {
+                                    Spacer()
+                                    
+                                    Text("\(firstNum) x \(secondNum)")
+                                        .font(.title.bold())
+                                    
+                                    Spacer()
+                                }
+                            }
+                            
+                            Section {
+                                TextField("Answer", value: $answer, format: .number)
+                                    .multilineTextAlignment(.center)
+                                    .keyboardType(.decimalPad)
+                                    .focused($answerIsFocused)
                             }
                         }
-                        .pickerStyle(.segmented)
-                    }
-                    
-                    HStack {
-                        Spacer()
-                        
-                        Button("Submit") {
-                            active = true
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                
+                                Button("Done") {
+                                    answerSubmitted()
+                                    answerIsFocused = false
+                                }
+                            }
                         }
+                    }
+                    .alert(resultTitle, isPresented: $showingResult) {
+                        Button("Continue") {
+                            
+                        }
+                    }
+                    .safeAreaInset(edge: .bottom) {
+                        VStack {
+                            Text("Score")
+                                .font(.headline.bold())
+                            Text("\(pointsCounter)")
+                                .font(.largeTitle)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
                         
-                        Spacer()
+                    }
+                } else {
+                    Form {
+                        Section("Highest Multiple") {
+                            Stepper("Up to \(timesTable)", value: $timesTable, in: 1...12)
+                        }
+
+                        Section("Total Questions") {
+                            Picker("Questions", selection: $questionAmount) {
+                                ForEach(questionAmounts, id: \.self) {
+                                    Text("\($0)")
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+
+                        HStack {
+                            Spacer()
+
+                            Button("Submit") {
+                                active = true
+                                newQuestion()
+                            }
+
+                            Spacer()
+                        }
                     }
                 }
             }
         }
+    }
+    
+    func randomNumber(limit: Int) -> Int {
+        Int.random(in: 1...limit)
+    }
+    
+    func answerIsCorrect() -> Bool {
+        answer == firstNum * secondNum
+    }
+    
+    func newQuestion() {
+        firstNum = randomNumber(limit: timesTable)
+        secondNum = randomNumber(limit: 12)
+        answer = nil
+    }
+    
+    func answerSubmitted() {
+        if answerIsCorrect() {
+            pointsCounter += 1
+            resultTitle = "Correct"
+        } else {
+            resultTitle = "Incorrect"
+        }
+        newQuestion()
+        
+        showingResult = true
     }
 }
 
