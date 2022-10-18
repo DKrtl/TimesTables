@@ -54,16 +54,6 @@ struct ContentView: View {
                                     .focused($answerIsFocused)
                             }
                         }
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                
-                                Button("Done") {
-                                    answerSubmitted()
-                                    answerIsFocused = false
-                                }
-                            }
-                        }
                     }
                     .alert(resultTitle, isPresented: $showingResult) {
                         Button("Continue") {
@@ -106,6 +96,16 @@ struct ContentView: View {
 
                             Spacer()
                         }
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    
+                    Button("Done") {
+                        answerSubmitted()
+                        answerIsFocused = false
                     }
                 }
             }
