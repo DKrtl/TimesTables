@@ -23,6 +23,10 @@ struct ContentView: View {
     @State private var showingResult = false
     @State private var resultTitle = ""
     
+    @State private var finalResultAlert = false
+    @State private var finalResultTitle = ""
+    @State private var finalResultMessage = ""
+    
     @FocusState private var answerIsFocused: Bool
     
     var body: some View {
@@ -57,19 +61,43 @@ struct ContentView: View {
                     }
                     .alert(resultTitle, isPresented: $showingResult) {
                         Button("Continue") {
-                            
+                            if !finalResultAlert {
+                                newQuestion()
+                            }
                         }
                     }
+                    .alert(finalResultTitle, isPresented: $finalResultAlert) {
+                        Button("Main Menu") {
+                            active = false
+                            newGame()
+                        }
+                    } message: {
+                        Text(finalResultMessage)
+                    }
                     .safeAreaInset(edge: .bottom) {
-                        VStack {
-                            Text("Score")
-                                .font(.headline.bold())
-                            Text("\(pointsCounter)")
-                                .font(.largeTitle)
+                        HStack {
+                            Spacer()
+                            
+                            VStack {
+                                Text("Score")
+                                    .font(.headline.bold())
+                                Text("\(pointsCounter)")
+                                    .font(.largeTitle)
+                            }
+                            
+                            Spacer()
+                            
+                            VStack {
+                                Text("Left")
+                                    .font(.headline.bold())
+                                Text("\(questionAmount)")
+                                    .font(.largeTitle)
+                            }
+                            
+                            Spacer()
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        
                     }
                 } else {
                     Form {
@@ -133,9 +161,22 @@ struct ContentView: View {
         } else {
             resultTitle = "Incorrect"
         }
-        newQuestion()
         
         showingResult = true
+        
+        questionAmount -= 1
+        
+        if questionAmount == 0 {
+            finalResultAlert = true
+            finalResultTitle = "Game Over"
+            finalResultMessage = "Your score is \(pointsCounter)"
+        }
+    }
+    
+    func newGame() {
+        pointsCounter = 0
+        newQuestion()
+        questionAmount = 5
     }
 }
 
